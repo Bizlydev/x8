@@ -159,7 +159,10 @@ private fun X8App() {
                     }
                 }
             } else {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
                     items(customers, key = { it.id }) { customer ->
                         CustomerCard(customer = customer, onClick = { selectedCustomerId = customer.id })
                     }
@@ -351,7 +354,10 @@ private fun CustomerDetailScreen(
         if (entries.isEmpty()) {
             Text("هنوز رویداد مالی ثبت نشده است.", color = Muted)
         } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
                 items(entries, key = { it.id }) { entry ->
                     Card(modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(14.dp)) {
                         Row(
