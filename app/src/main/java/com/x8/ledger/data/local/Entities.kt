@@ -27,7 +27,10 @@ data class CustomerEntity(
             onDelete = ForeignKey.RESTRICT
         )
     ],
-    indices = [Index(value = ["customerId", "createdAt"])]
+    indices = [
+        Index(value = ["customerId", "createdAt"]),
+        Index(value = ["idempotencyKey"], unique = true)
+    ]
 )
 data class LedgerEntryEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
