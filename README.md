@@ -1,31 +1,42 @@
 # X8
 
-X8 is a private-use, Persian-first Android ledger app for tracking customer credit and payments.
+X8 is a Persian-first Android ledger app for tracking customer credit and payments.
 
-## Current status
-This repository contains the initial Android application scaffold only. It is **not yet a finished financial app** and no APK has been built or verified.
+## Implemented in the current scaffold
+- Kotlin + Jetpack Compose application entry point
+- Room database for durable local customer and ledger storage
+- Customer create/list/detail UI
+- Credit and payment entry UI
+- Integer toman amounts (no floating-point money)
+- Local transaction posting in a Room transaction
+- Payment validation to reject payments above the current positive balance
+- UUID idempotency token generated per local ledger entry (sync enforcement is not implemented yet)
 
-## Planned architecture
-- Kotlin + Jetpack Compose for Android UI
-- Room for durable local-first storage
-- Supabase for authenticated remote access and synchronization
-- Integer toman amounts (never floating-point money)
-- Reversal entries instead of deleting posted financial transactions
-- Role-based access, audit history, validated backup/restore, and tests
+## Important limitations
+- This is an early development build, not a production-ready financial app.
+- No APK build has yet been confirmed.
+- Local data is not encrypted by this implementation.
+- Authentication, manager/employee roles, cloud sync, remote authorization, reversal/audit workflows, reports, backup/restore, and automated tests remain unfinished.
+- The payment validation currently assumes a positive customer balance represents an amount owed to the shop. Credit balances and reversal workflows need fuller domain modeling.
+- The current UI is a first functional slice; it has not yet been device-tested.
+
+## Architecture
+- Kotlin + Jetpack Compose
+- Room / SQLite for local-first persistence
+- Supabase planned for authenticated remote access and synchronization
 
 ## Security rules
 - Never commit passwords, access tokens, service-role keys, signing keys, customer data, or real transaction data.
-- The Supabase publishable/anon key may be used in a client only with correctly configured Row Level Security (RLS); it is not a substitute for RLS.
 - Never include a Supabase service-role key in the Android app.
-- Validate all authorization and financial rules on the trusted database/server side.
+- Client-side checks are not security boundaries; enforce authorization and financial rules on the trusted database/server side.
 - Treat public source code as visible to everyone.
 
 ## Build
-Open this repository in Android Studio with a compatible Android SDK and Gradle installation. The project currently has no Gradle wrapper files; those must be added before wrapper-based builds or CI can run.
+Open in Android Studio with JDK 17 and Android SDK 35. The Gradle project currently relies on an installed Gradle 8.9 for CI because Gradle wrapper files have not yet been added.
 
-## Development roadmap
-1. Establish a reproducible Android build.
-2. Implement and test local Room entities and repositories.
-3. Add authentication and authorization.
-4. Implement customer accounts and ledger posting/reversal.
-5. Add sync, reports, reminders, backup/restore, and release packaging.
+## Next steps
+1. Run the Android CI build and fix any compilation errors.
+2. Add unit tests for ledger invariants and persistence.
+3. Add local authentication/app lock and encryption considerations.
+4. Implement Supabase auth and sync with server-side authorization.
+5. Add immutable reversals, audit logs, reporting, reminders, backup/restore, and release packaging.
