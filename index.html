@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2A2468">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="دفتر نسیه">
+<title>دفتر نسیه</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3F2F9; --s:#FFFFFF; --ink:#1D1A33; --mut:#7A7790; --line:#ECEAF4;
+  --debt:#D6336C; --debt-s:#FCE9F1; --pay:#0F9D8A; --pay-s:#E3F6F2;
+  --btn:#2A2468; --btn-i:#FFFFFF; --hero1:#2A2468; --hero2:#4036B0;
+  --al:92%; --ac:32%;
+  --ease:cubic-bezier(.2,.9,.25,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#100F1D; --s:#1A1930; --ink:#EDECFA; --mut:#9593AD; --line:#2A2942;
+    --debt:#FF7AA8; --debt-s:#3A1B2A; --pay:#4FD6C0; --pay-s:#143129;
+    --btn:#EDECFA; --btn-i:#100F1D; --hero1:#2B2377; --hero2:#4A3FC4;
+    --al:24%; --ac:80%;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Vazirmatn',Tahoma,'Segoe UI',sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+#app{max-width:520px;margin:0 auto;min-height:100vh;min-height:100dvh;padding-bottom:120px}
+:focus-visible{outline:3px solid var(--pay);outline-offset:2px;border-radius:10px}
+
+/* ---------- حرکت ---------- */
+.enter{animation:enter .45s var(--ease) both}
+@keyframes enter{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.stagger .row{animation:enter .5s var(--ease) both;animation-delay:calc(var(--i)*45ms + 160ms)}
+.draw{transform-origin:right center;animation:draw .9s .2s var(--ease) both}
+@keyframes draw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.flash{animation:flash 1.6s ease-out}
+@keyframes flash{0%{background:var(--pay-s)}100%{background:transparent}}
+.flash.debt{animation-name:flashd}
+@keyframes flashd{0%{background:var(--debt-s)}100%{background:transparent}}
+.press{transition:transform .15s var(--ease),opacity .2s}
+.press:active{transform:scale(.96)}
+.press[disabled]{opacity:.6;pointer-events:none}
+.pulse{animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35;transform:scale(.94)}}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
+}
+
+/* ---------- ساختار ---------- */
+.top{display:flex;align-items:center;justify-content:space-between;padding:calc(16px + env(safe-area-inset-top)) 20px 4px}
+.muted{color:var(--mut);font-size:14px}
+.hello{font-size:19px;font-weight:700;line-height:1.3}
+.icon{width:44px;height:44px;border-radius:50%;border:0;background:transparent;display:grid;place-items:center;color:var(--ink)}
+.icon:active{background:var(--line)}
+.icon svg{width:22px;height:22px}
+.back{display:flex;align-items:center;gap:2px;background:none;border:0;padding:10px 0;color:var(--mut);font-size:15px}
+.back svg{width:20px;height:20px}
+
+/* کارت اصلی بالای صفحه */
+.hcard{margin:10px 16px 0;padding:22px 22px 18px;border-radius:30px;color:#fff;background:linear-gradient(145deg,var(--hero1),var(--hero2));position:relative;overflow:hidden}
+.hcard::after{content:"";position:absolute;inset-inline-start:-46px;top:-52px;width:170px;height:170px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none}
+.hcard .lbl{color:rgba(255,255,255,.72);font-size:14px;position:relative}
+.big{font-size:48px;font-weight:800;line-height:1.3;letter-spacing:-.5px;display:flex;align-items:baseline;gap:8px;position:relative}
+.big small{font-size:15px;font-weight:500;color:rgba(255,255,255,.72);letter-spacing:0}
+.rule{height:7px;border-top:2px solid rgba(255,255,255,.9);border-bottom:2px solid rgba(255,255,255,.9);margin:8px 0 12px;position:relative}
+.hcard .foot{color:rgba(255,255,255,.78);font-size:14px;position:relative;margin:0}
+.chipx{display:inline-block;border-radius:999px;padding:1px 12px;font-size:13px;background:rgba(255,255,255,.16);color:#fff;margin-inline-start:8px;vertical-align:middle}
+.who2{display:flex;align-items:center;gap:12px;margin-bottom:12px;position:relative}
+.who2 .hello{color:#fff}
+
+.searchwrap{padding:16px 16px 0}
+.search{width:100%;border:0;background:var(--s);border-radius:16px;padding:13px 18px;outline:none;font-size:15px}
+.search::placeholder{color:var(--mut)}
+.search:focus-visible{box-shadow:0 0 0 2px var(--btn)}
+
+.panel{margin:14px 16px 0;background:var(--s);border-radius:26px;overflow:hidden}
+
+/* ---------- لیست ---------- */
+.row{display:flex;align-items:center;gap:14px;width:100%;padding:14px 18px;background:none;border:0;text-align:right;position:relative}
+.row::after{content:"";position:absolute;inset-inline:18px;bottom:0;height:1px;background:var(--line)}
+.row:last-child::after{display:none}
+.row:active{background:var(--bg)}
+.rm{display:flex;flex-direction:column;flex:1;min-width:0}
+.nm{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb{font-size:13px;color:var(--mut)}
+.amt{font-weight:800;font-size:17px;white-space:nowrap;text-align:left}
+.amt small{display:block;font-size:11px;font-weight:400;color:var(--mut);text-align:left}
+.amt.d{color:var(--debt)} .amt.p{color:var(--pay)} .amt.z{color:var(--mut);font-weight:500;font-size:14px}
+.av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:18px;flex:none;background:hsl(var(--h) 60% var(--al));color:hsl(var(--h) 45% var(--ac))}
+.av.sm{width:38px;height:38px;font-size:15px}
+.empty{text-align:center;padding:48px 30px;color:var(--mut)}
+.empty p{margin:14px 0 2px;color:var(--ink);font-weight:700}
+.empty small{font-size:14px}
+.emptyart{width:64px;height:64px;margin:0 auto;border-radius:20px;background:var(--bg);display:grid;place-items:center}
+.emptyart i{display:block;width:30px;height:17px;border-top:3px solid var(--mut);border-bottom:3px solid var(--mut);opacity:.5}
+
+/* ---------- نوار پایین و دکمه‌ها ---------- */
+.bar{position:fixed;inset-inline:0;bottom:0;max-width:520px;margin:0 auto;display:flex;gap:10px;padding:28px 16px calc(16px + env(safe-area-inset-bottom));background:linear-gradient(to top,var(--bg) 60%,transparent);z-index:5}
+.btn{flex:1;border:0;border-radius:18px;padding:16px;background:var(--btn);color:var(--btn-i);font-weight:700;font-size:16px}
+.btn.debt{background:var(--debt);color:#fff}
+.btn.pay{background:var(--pay);color:#fff}
+@media (prefers-color-scheme:dark){.btn.debt,.btn.pay{color:#100F1D}}
+.btn.ghost{background:var(--line);color:var(--ink)}
+.btn.block{width:100%;margin-top:18px;flex:none;display:block}
+
+/* ---------- صفحه مشتری ---------- */
+.day{padding:18px 20px 4px;font-size:13px;color:var(--mut);font-weight:500}
+.ent{display:flex;align-items:center;gap:14px;padding:12px 20px}
+.mk{width:10px;height:10px;border-radius:50%;flex:none;background:var(--debt)}
+.ent.pay .mk{background:var(--pay)}
+.em{flex:1;display:flex;flex-direction:column;min-width:0}
+.it{font-weight:600}
+.mt{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--mut);flex-wrap:wrap}
+.vb{background:none;border:0;padding:0;font-size:13px;color:var(--mut);text-decoration:underline;text-underline-offset:3px;opacity:.75}
+.vn{color:var(--debt)}
+.a{font-weight:800;white-space:nowrap}
+.ent.debt .a{color:var(--debt)} .ent.pay .a{color:var(--pay)}
+.ent.void{opacity:.55}
+.ent.void .it,.ent.void .a{text-decoration:line-through}
+.ent.void .mk{background:var(--mut)}
+.endnote{padding:22px 22px 6px;text-align:center;color:var(--mut);font-size:13px}
+
+/* ---------- ورود و ثبت‌نام ---------- */
+.center{padding:calc(44px + env(safe-area-inset-top)) 24px 30px;display:flex;flex-direction:column;align-items:center;text-align:center}
+.logo{width:72px;height:72px;border-radius:24px;background:linear-gradient(145deg,var(--hero1),var(--hero2));display:grid;place-items:center;margin-bottom:18px}
+.logo i{display:block;width:30px;height:15px;border-top:3px solid #fff;border-bottom:3px solid #fff;border-radius:1px}
+.center h1{margin:0;font-size:30px;font-weight:800;line-height:1.3}
+.center .sub{margin:6px 0 24px;color:var(--mut);font-size:15px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--line);border-radius:18px;padding:4px;width:100%;position:relative;margin-bottom:6px}
+.seg::before{content:"";position:absolute;top:4px;bottom:4px;inset-inline-start:4px;width:calc(50% - 4px);border-radius:14px;background:var(--s);transition:transform .38s var(--ease)}
+.seg.m::before{transform:translateX(-100%)}
+.seg button{border:0;background:none;padding:12px;border-radius:14px;font-weight:700;color:var(--mut);position:relative;z-index:1;transition:color .25s}
+.seg button.on{color:var(--ink)}
+.field{width:100%;border:0;background:var(--s);border-radius:16px;padding:15px 18px;margin-top:10px;outline:none;font-size:16px;text-align:right}
+.field:focus-visible{box-shadow:0 0 0 2px var(--btn)}
+.err{width:100%;margin-top:12px;padding:10px 14px;border-radius:14px;background:var(--debt-s);color:var(--debt);font-size:14px;text-align:right}
+.note{width:100%;margin-top:14px;padding:14px 16px;border-radius:16px;background:var(--s);color:var(--mut);font-size:14px;text-align:right}
+.toggle{background:none;border:0;margin-top:16px;color:var(--mut);font-size:14px;text-decoration:underline;text-underline-offset:4px}
+.hintline{width:100%;text-align:right;font-size:12.5px;color:var(--mut);margin:6px 4px 0}
+
+/* ---------- پنجره پایین ---------- */
+.scrim{position:fixed;inset:0;background:rgba(16,15,29,.5);display:flex;align-items:flex-end;justify-content:center;z-index:20;animation:fade .25s both}
+.scrim.out{animation:fadeout .2s both}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fadeout{to{opacity:0}}
+.sheet{width:100%;max-width:520px;max-height:90vh;overflow:auto;background:var(--s);border-radius:30px 30px 0 0;padding:10px 22px calc(24px + env(safe-area-inset-bottom));animation:sin .45s var(--ease) both}
+.scrim.out .sheet{animation:sout .2s ease-in both}
+@keyframes sin{from{transform:translateY(60%);opacity:.4}to{transform:none;opacity:1}}
+@keyframes sout{to{transform:translateY(40%);opacity:0}}
+.grab{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 16px}
+.sheet h3{margin:0;font-size:21px;font-weight:800}
+.hint{margin:2px 0 14px;color:var(--mut);font-size:14px}
+.sheet .field{background:var(--bg)}
+.chips2{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.chip{border:0;border-radius:999px;padding:7px 14px;background:var(--bg);font-size:14px}
+.chip:active{transform:scale(.95)}
+.amtbox{display:flex;align-items:baseline;gap:8px;background:var(--bg);border-radius:18px;padding:8px 18px;margin-top:12px}
+.amtbox input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:32px;font-weight:800;padding:6px 0;text-align:right}
+.amtbox span{color:var(--mut);font-size:14px}
+.menu{display:flex;flex-direction:column;margin-top:8px}
+.mi{display:flex;justify-content:space-between;align-items:center;background:none;border:0;border-bottom:1px solid var(--line);padding:16px 2px;font-size:16px;text-align:right}
+.mi:last-child{border-bottom:0}
+.mi.dg{color:var(--debt)}
+.mi small{color:var(--mut);font-size:14px}
+.erow{display:flex;align-items:center;gap:12px;padding:10px 0}
+.tag{font-size:12px;background:var(--bg);border-radius:999px;padding:1px 10px;color:var(--mut)}
+.tag.mg{background:var(--pay-s);color:var(--pay)}
+.rm-btn{border:0;background:none;color:var(--debt);font-size:14px}
+
+.toast{position:fixed;inset-inline:0;bottom:calc(98px + env(safe-area-inset-bottom));margin:0 auto;width:max-content;max-width:86vw;background:var(--ink);color:var(--bg);padding:10px 20px;border-radius:999px;font-size:14px;z-index:30;animation:toast 2.4s var(--ease) both;pointer-events:none;text-align:center}
+@keyframes toast{0%{opacity:0;transform:translateY(14px) scale(.96)}12%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0;transform:translateY(6px)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================
+   تنظیمات Supabase
+   ===================================================== */
+const SB_URL = 'https://inpbztabvvcfhnyasfda.supabase.co';
+const SB_KEY = 'sb_publishable_ppEB1aNqfR0MEISuRZNUAw_0F-6jK2J';
+const EMAIL_DOMAIN = 'nesiye.app'; // شماره موبایل به صورت ایمیل داخلی ساخته می‌شود
+
+/* =====================================================
+   ابزارها
+   ===================================================== */
+const $ = s => document.querySelector(s);
+const fa = n => Number(n).toLocaleString('fa-IR');
+const toEn = s => String(s).replace(/[۰-۹]/g,d=>'۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const parseAmt = s => parseInt(toEn(s).replace(/[^\d]/g,''),10) || 0;
+const jd = ts => new Intl.DateTimeFormat('fa-IR-u-ca-persian',{year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date(ts));
+const jt = ts => new Intl.DateTimeFormat('fa-IR',{hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(ts));
+function dayLabel(ts){
+  const d = new Date(ts), t = new Date(), y = new Date(); y.setDate(t.getDate()-1);
+  const k = x => x.toDateString();
+  if(k(d)===k(t)) return 'امروز';
+  if(k(d)===k(y)) return 'دیروز';
+  return new Intl.DateTimeFormat('fa-IR-u-ca-persian',{day:'numeric',month:'long',year:'numeric'}).format(d);
+}
+const bal = c => c.entries.reduce((t,e)=> e.void ? t : t + (e.type==='debt' ? e.amount : -e.amount), 0);
+const lastTs = c => c.entries.reduce((m,e)=>Math.max(m,e.ts),0);
+const TITLES = ['آقای','اقای','خانم','دکتر','مهندس','حاج','حاجی','سرکار','جناب','استاد'];
+function initial(name){
+  const w = name.trim().split(/\s+/).filter(x=>!TITLES.includes(x));
+  return ((w[0]||name.trim())[0]||'؟');
+}
+function avatar(name, cls){
+  const h = [...name].reduce((a,c)=>a+c.charCodeAt(0),0) % 360;
+  return `<span class="av ${cls||''}" style="--h:${h}">${esc(initial(name))}</span>`;
+}
+const ICON = {
+  gear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+  share:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>',
+  back:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6" transform="translate(24 0) scale(-1 1)"/></svg>'
+};
+
+/* =====================================================
+   ذخیره جلسه ورود روی گوشی
+   ===================================================== */
+const memStore = {};
+const store = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return memStore[k]||null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){ memStore[k]=v; } },
+  del(k){ try{ localStorage.removeItem(k); }catch(e){ delete memStore[k]; } }
+};
+let SES = null;
+try{ SES = JSON.parse(store.get('nesiye-ses')||'null'); }catch(e){}
+function setSes(s){ SES = s; s ? store.set('nesiye-ses',JSON.stringify(s)) : store.del('nesiye-ses'); }
+function jwtSub(t){ try{ return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).sub; }catch(e){ return null; } }
+function normSes(j){
+  return {
+    access_token:j.access_token, refresh_token:j.refresh_token,
+    expires_at: j.expires_at ? j.expires_at*1000 : Date.now()+(j.expires_in||3600)*1000,
+    uid:(j.user&&j.user.id)||jwtSub(j.access_token)
+  };
+}
+let refreshing = null;
+function refreshSes(){
+  if(!SES) return Promise.reject(new Error('session-expired'));
+  if(refreshing) return refreshing;
+  refreshing = (async()=>{
+    let r; try{ r = await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB_KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:SES.refresh_token})}); }
+    catch(e){ throw new Error('NETWORK'); }
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok||!j.access_token){ setSes(null); throw new Error('session-expired'); }
+    setSes(normSes(j));
+  })().finally(()=>{ refreshing=null; });
+  return refreshing;
+}
+
+/* =====================================================
+   ارتباط با Supabase (بدون کتابخانه خارجی)
+   ===================================================== */
+async function api(path, o={}){
+  const {method='GET', body, anon=false, prefer, range, _retry} = o;
+  if(!anon && SES && SES.expires_at-Date.now()<60000) await refreshSes();
+  const h = {apikey:SB_KEY,'Content-Type':'application/json'};
+  if(!anon && SES) h.Authorization = 'Bearer '+SES.access_token;
+  if(prefer) h.Prefer = prefer;
+  if(range){ h['Range-Unit']='items'; h.Range = range; }
+  let r;
+  try{ r = await fetch(SB_URL+path,{method,headers:h,body:body!==undefined?JSON.stringify(body):undefined}); }
+  catch(e){ throw new Error('NETWORK'); }
+  if(r.status===401 && !anon && SES && !_retry){ await refreshSes(); return api(path,{...o,_retry:true}); }
+  const txt = await r.text(); let j = null; try{ j = txt ? JSON.parse(txt) : null; }catch(e){}
+  if(!r.ok){
+    const err = new Error((j&&(j.msg||j.message||j.error_description||j.error))||('HTTP '+r.status));
+    err.status = r.status; throw err;
+  }
+  return j;
+}
+async function fetchAll(path){
+  let out=[], from=0; const step=1000;
+  for(;;){
+    let part;
+    try{ part = await api(path,{range:`${from}-${from+step-1}`}); }
+    catch(e){ if(e.status===416) break; throw e; }
+    out = out.concat(part||[]);
+    if(!part||part.length<step) break;
+    from += step;
+  }
+  return out;
+}
+function faErr(e){
+  const m = (e.message||'').toLowerCase();
+  if(e.message==='NETWORK') return 'اتصال اینترنت برقرار نیست.';
+  if(e.message==='session-expired') return 'نشست شما تمام شده؛ دوباره وارد شوید.';
+  if(m.includes('invalid login')) return 'شماره یا رمز اشتباه است.';
+  if(m.includes('already registered')||m.includes('already been registered')) return 'این شماره قبلاً ثبت‌نام کرده است؛ وارد شوید.';
+  if(m.includes('database error saving')) return 'ثبت‌نام انجام نشد. کد کسب‌وکار را بررسی کنید.';
+  if(m.includes('password')&&(m.includes('6')||m.includes('short')||m.includes('least'))) return 'رمز باید حداقل ۶ کاراکتر باشد.';
+  if(m.includes('email not confirmed')) return 'در Supabase گزینه Confirm email روشن است؛ آن را خاموش کنید.';
+  if(m.includes('signups not allowed')||m.includes('signup is disabled')) return 'ثبت‌نام در Supabase غیرفعال است.';
+  if(m.includes('rate limit')||e.status===429) return 'تلاش زیاد بود. چند دقیقه بعد دوباره امتحان کنید.';
+  if(m.includes('invalid')&&m.includes('email')) return 'شماره موبایل نامعتبر است.';
+  if(m.includes('only manager')) return 'فقط مدیر می‌تواند این کار را انجام دهد.';
+  return 'خطا: '+(e.message||'نامشخص');
+}
+
+/* ---------- ورود و ثبت‌نام ---------- */
+function emailFrom(id){
+  id = toEn(id.trim());
+  if(id.includes('@')) return id.toLowerCase();
+  return id.replace(/\D/g,'')+'@'+EMAIL_DOMAIN;
+}
+function validId(id){
+  id = toEn(id.trim());
+  return id.includes('@') ? /^.+@.+\..+$/.test(id) : /^09\d{9}$/.test(id.replace(/\D/g,''));
+}
+async function signIn(id,pw){
+  const j = await api('/auth/v1/token?grant_type=password',{method:'POST',anon:true,body:{email:emailFrom(id),password:pw}});
+  setSes(normSes(j));
+}
+async function signUp(id,pw,meta){
+  const j = await api('/auth/v1/signup',{method:'POST',anon:true,body:{email:emailFrom(id),password:pw,data:meta}});
+  if(j && j.access_token) setSes(normSes(j)); else await signIn(id,pw);
+}
+
+/* =====================================================
+   وضعیت برنامه
+   ===================================================== */
+const U = {view:'loading', cid:null, q:'', user:null, animate:false, flash:null, err:'', sig:null, busy:false};
+const A = {role:'staff', mode:'in', f:{}, err:'', busy:false};
+let DB = {customers:[], staff:[]};
+let SHOP = {name:'', join_code:''};
+let SHOP_EXISTS = false, SHOP_NAME = '';
+let LC = {};
+let pollTimer = null;
+const cust = () => DB.customers.find(c=>c.id===U.cid);
+const isMgr = () => U.user && U.user.role==='manager';
+
+function go(view, o){
+  Object.assign(U, {view, err:''}, o||{});
+  U.animate = true; LC = {};
+  closeSheet(true);
+  render();
+  window.scrollTo(0,0);
+}
+function render(){
+  const app = $('#app');
+  const views = {loading:loadingView, offline:offlineView, auth:authView, list:listView, cust:custView};
+  app.className = U.animate ? 'enter' : '';
+  app.innerHTML = views[U.view]();
+  U.animate = false; U.flash = null;
+  runCounts();
+}
+function runCounts(){
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('[data-count]').forEach(el=>{
+    const to = +el.dataset.count, key = el.dataset.key;
+    const from = (key in LC) ? LC[key] : 0;
+    LC[key] = to;
+    if(from===to || reduce){ el.textContent = fa(to); return; }
+    const t0 = performance.now(), dur = 750;
+    const step = t=>{
+      const p = Math.min(1,(t-t0)/dur), e = 1-Math.pow(1-p,3);
+      el.textContent = fa(Math.round(from+(to-from)*e));
+      if(p<1) requestAnimationFrame(step);
+    };
+    el.textContent = fa(from);
+    requestAnimationFrame(step);
+  });
+}
+
+/* ---------- بارگذاری داده‌ها ---------- */
+async function loadData(force){
+  const [cs,es,ps] = await Promise.all([
+    fetchAll('/rest/v1/customers?select=id,name,created_at&order=created_at.asc'),
+    fetchAll('/rest/v1/entries?select=id,customer_id,type,item,amount,by_name,created_at,void_by,void_at&order=created_at.asc'),
+    api('/rest/v1/profiles?select=id,name,role&order=created_at.asc')
+  ]);
+  const sig = JSON.stringify([cs,es,ps]);
+  if(!force && sig===U.sig) return false;
+  U.sig = sig;
+  const map = {};
+  DB.customers = cs.map(c=>(map[c.id]={id:c.id,name:c.name,entries:[]}));
+  es.forEach(e=>{ const c = map[e.customer_id]; if(c) c.entries.push(mapEntry(e)); });
+  DB.staff = ps;
+  return true;
+}
+function mapEntry(e){
+  return {id:e.id, type:e.type, item:e.item, amount:Number(e.amount), ts:Date.parse(e.created_at), by:e.by_name,
+          void: e.void_at ? {by:e.void_by, ts:Date.parse(e.void_at)} : null};
+}
+function startPolling(){
+  stopPolling();
+  pollTimer = setInterval(syncNow, 8000);
+}
+function stopPolling(){ if(pollTimer){ clearInterval(pollTimer); pollTimer=null; } }
+async function syncNow(){
+  if(!U.user || document.visibilityState!=='visible' || U.busy) return;
+  try{
+    if(await loadData(false)) softRefresh();
+  }catch(e){
+    if(e.message==='session-expired') doLogout(true);
+  }
+}
+function softRefresh(){
+  if(U.view==='list'){
+    const h = $('#hero'); if(h) h.innerHTML = heroInner();
+    const l = $('#clist'); if(l) l.innerHTML = listRows();
+    runCounts();
+  }else if(U.view==='cust'){ render(); }
+}
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') syncNow(); });
+
+/* =====================================================
+   صفحه‌های اولیه
+   ===================================================== */
+function loadingView(){
+  return `<div class="center" style="padding-top:30vh"><div class="logo pulse"><i></i></div><p class="sub">در حال بارگذاری…</p></div>`;
+}
+function offlineView(){
+  return `<div class="center" style="padding-top:26vh"><div class="logo"><i></i></div><h1>به دیتابیس متصل نشدید</h1>
+    <p class="sub">اینترنت را بررسی کنید و دوباره تلاش کنید.</p>
+    ${U.tech?`<p class="muted" dir="ltr" style="margin:-12px 0 16px;font-size:12px;opacity:.7">${esc(U.tech)}</p>`:''}
+    <button class="btn block press" onclick="boot()">تلاش دوباره</button></div>`;
+}
+
+/* ---------- ورود / ثبت‌نام (بخش کارمند و مدیر) ---------- */
+function fld(k,ph,type,mode){
+  return `<input class="field" ${type?`type="${type}"`:''} ${mode?`inputmode="${mode}"`:''} placeholder="${ph}" value="${esc(A.f[k]||'')}" oninput="A.f['${k}']=this.value" autocomplete="off" onkeydown="if(event.key==='Enter')doAuth()">`;
+}
+function authBody(){
+  const staff = A.role==='staff', up = A.mode==='up';
+  const canUp = staff ? SHOP_EXISTS : !SHOP_EXISTS;
+  let h = '';
+  if(up && !canUp){
+    h = `<div class="note">${staff
+      ? 'هنوز کسب‌وکاری ساخته نشده است. اول مدیر باید از بخش «مدیر» ثبت‌نام کند.'
+      : 'کسب‌وکار قبلاً ساخته شده است. اگر مدیر هستید وارد شوید. اگر کارمندید از بخش «کارمند» ثبت‌نام کنید.'}</div>`;
+  }else if(up){
+    h = (staff ? '' : fld('shop','نام کسب‌وکار'))
+      + fld('name', staff ? 'نام شما' : 'نام شما (مدیر)')
+      + fld('id','شماره موبایل','tel','tel')
+      + fld('pw','رمز عبور (حداقل ۶ کاراکتر)','password')
+      + fld('code', staff ? 'کد کسب‌وکار (از مدیر بگیرید)' : 'یک کد برای ثبت‌نام کارمندان بسازید')
+      + (staff ? '' : `<div class="hintline">این کد را به کارمندان می‌دهید تا بتوانند ثبت‌نام کنند. حداقل ۴ حرف.</div>`);
+  }else{
+    h = fld('id','شماره موبایل','tel','tel') + fld('pw','رمز عبور','password');
+  }
+  if(A.err) h += `<div class="err">${esc(A.err)}</div>`;
+  if(!(up && !canUp)){
+    const label = up ? (staff ? 'ثبت‌نام کارمند' : 'ساخت کسب‌وکار') : 'ورود';
+    h += `<button class="btn block press" id="authbtn" onclick="doAuth()" ${A.busy?'disabled':''}>${A.busy?'لحظه‌ای…':label}</button>`;
+  }
+  h += `<button class="toggle" onclick="setMode('${up?'in':'up'}')">${up?'حساب دارید؟ وارد شوید':'حساب ندارید؟ ثبت‌نام'}</button>`;
+  return h;
+}
+function authView(){
+  return `<div class="center">
+    <div class="logo"><i></i></div>
+    <h1>دفتر نسیه</h1>
+    <p class="sub">${SHOP_EXISTS && SHOP_NAME ? esc(SHOP_NAME) : 'حساب نسیه مشتری‌ها، ساده و مرتب.'}</p>
+    <div class="seg ${A.role==='manager'?'m':''}" id="seg">
+      <button class="${A.role==='staff'?'on':''}" onclick="setRole('staff')">کارمند</button>
+      <button class="${A.role==='manager'?'on':''}" onclick="setRole('manager')">مدیر</button>
+    </div>
+    <div id="authbody" style="width:100%">${authBody()}</div>
+  </div>`;
+}
+function refreshAuth(){
+  const seg = $('#seg'), body = $('#authbody'); if(!seg||!body) return;
+  seg.classList.toggle('m', A.role==='manager');
+  [...seg.children].forEach((b,i)=>b.classList.toggle('on', (i===0)===(A.role==='staff')));
+  body.innerHTML = authBody();
+}
+function setRole(r){ A.role=r; A.err=''; if(r==='manager' && !SHOP_EXISTS) A.mode='up'; refreshAuth(); }
+function setMode(m){ A.mode=m; A.err=''; refreshAuth(); }
+
+async function doAuth(){
+  if(A.busy) return;
+  const f = A.f, staff = A.role==='staff', up = A.mode==='up';
+  const id = f.id||'', pw = f.pw||'';
+  if(up && (staff ? !SHOP_EXISTS : SHOP_EXISTS)) return;
+  const fail = m=>{ A.err=m; refreshAuth(); };
+  if(up){
+    if(!staff && !(f.shop||'').trim()) return fail('نام کسب‌وکار را وارد کنید.');
+    if(!(f.name||'').trim()) return fail('نام خود را وارد کنید.');
+  }
+  if(!validId(id)) return fail('شماره موبایل را درست وارد کنید (مثلاً ۰۹۱۲۱۲۳۴۵۶۷).');
+  if(pw.length<6) return fail('رمز باید حداقل ۶ کاراکتر باشد.');
+  if(up && (f.code||'').trim().length<(staff?1:4)) return fail(staff?'کد کسب‌وکار را وارد کنید.':'کد کسب‌وکار باید حداقل ۴ حرف باشد.');
+  A.busy = true; A.err = ''; refreshAuth();
+  try{
+    if(up){
+      const meta = {name:f.name.trim(), join_code:f.code.trim(), as:A.role};
+      if(!staff) meta.shop_name = f.shop.trim();
+      await signUp(id,pw,meta);
+    }else{
+      await signIn(id,pw);
+    }
+    await enter();
+    A.f = {}; 
+  }catch(e){
+    A.busy = false;
+    if(e.message==='NO_PROFILE'){ setSes(null); return fail('حساب شما کامل نیست. با مدیر تماس بگیرید.'); }
+    fail(faErr(e));
+    return;
+  }
+  A.busy = false;
+}
+
+/* ---------- ورود به برنامه ---------- */
+async function enter(){
+  const me = await api(`/rest/v1/profiles?id=eq.${SES.uid}&select=id,name,role`);
+  if(!me || !me[0]) throw new Error('NO_PROFILE');
+  U.user = me[0];
+  const sh = await api('/rest/v1/rpc/shop_info',{method:'POST',body:{}});
+  SHOP = (sh && sh[0]) || {name:'دفتر نسیه',join_code:''};
+  await loadData(true);
+  startPolling();
+  go('list',{q:''});
+}
+async function doLogout(silent){
+  stopPolling();
+  try{ if(!silent && SES) await api('/auth/v1/logout',{method:'POST'}); }catch(e){}
+  setSes(null);
+  U.user = null; U.sig = null; DB = {customers:[],staff:[]};
+  await prepareAuth().catch(()=>{});
+  A.mode = 'in'; A.err = '';
+  go('auth');
+}
+async function prepareAuth(){
+  const [ex,nm] = await Promise.all([
+    api('/rest/v1/rpc/shop_exists',{method:'POST',anon:true,body:{}}),
+    api('/rest/v1/rpc/shop_name',{method:'POST',anon:true,body:{}})
+  ]);
+  SHOP_EXISTS = !!ex; SHOP_NAME = nm || '';
+  if(!SHOP_EXISTS){ A.role='manager'; A.mode='up'; }
+  else if(A.role==='manager' && A.mode==='up'){ A.mode='in'; }
+}
+async function boot(){
+  U.view = 'loading'; render();
+  try{
+    if(SES){
+      try{ await enter(); return; }
+      catch(e){
+        if(e.message==='NETWORK') throw e;
+        setSes(null);
+      }
+    }
+    await prepareAuth();
+    go('auth');
+  }catch(e){
+    U.tech = e.message==='NETWORK' ? '' : String(e.message||'').slice(0,160);
+    go('offline');
+  }
+}
+
+/* =====================================================
+   لیست مشتری‌ها
+   ===================================================== */
+function heroInner(){
+  const total = DB.customers.reduce((t,c)=>t+Math.max(bal(c),0),0);
+  const debtors = DB.customers.filter(c=>bal(c)>0).length;
+  return `<div class="lbl">جمع بدهی مشتری‌ها</div>
+    <div class="big"><span data-count="${total}" data-key="total">${fa(total)}</span><small>تومان</small></div>
+    <div class="rule ${U.animate?'draw':''}"></div>
+    <p class="foot">${fa(debtors)} بدهکار از ${fa(DB.customers.length)} مشتری</p>`;
+}
+function listRows(){
+  const q = U.q.trim();
+  const arr = DB.customers.filter(c=>!q||c.name.includes(q)).sort((a,b)=>(bal(b)-bal(a))||(lastTs(b)-lastTs(a)));
+  if(!arr.length){
+    return DB.customers.length
+      ? `<div class="empty"><small>مشتری‌ای با این نام پیدا نشد.</small></div>`
+      : `<div class="empty"><div class="emptyart"><i></i></div><p>هنوز مشتری‌ای ندارید</p><small>با دکمه پایین اولین مشتری را اضافه کنید.</small></div>`;
+  }
+  return arr.map((c,i)=>{
+    const b = bal(c), lt = lastTs(c);
+    return `<button class="row" style="--i:${Math.min(i,9)}" onclick="go('cust',{cid:'${c.id}'})">
+      ${avatar(c.name)}
+      <span class="rm"><span class="nm">${esc(c.name)}</span><span class="sb">${lt?'آخرین ثبت: '+jd(lt):'بدون تراکنش'}</span></span>
+      <span class="amt ${b>0?'d':b<0?'p':'z'}">${b===0?'تسویه':fa(Math.abs(b))+'<small>'+(b<0?'بستانکار':'تومان')+'</small>'}</span>
+    </button>`;
+  }).join('');
+}
+function listView(){
+  return `
+  <div class="top">
+    <div><div class="muted">${esc(SHOP.name||'دفتر نسیه')}</div><div class="hello">سلام، ${esc(U.user.name)}</div></div>
+    <button class="icon" aria-label="تنظیمات" onclick="openSheet('settings')">${ICON.gear}</button>
+  </div>
+  <section class="hcard" id="hero">${heroInner()}</section>
+  <div class="searchwrap"><input class="search" id="q" type="search" placeholder="جستجوی مشتری" value="${esc(U.q)}" oninput="onSearch(this.value)" autocomplete="off"></div>
+  <div class="panel ${U.animate?'stagger':''}" id="clist">${listRows()}</div>
+  <div class="bar"><button class="btn press" onclick="openSheet('addCust')">مشتری جدید</button></div>`;
+}
+function onSearch(v){ U.q = v; $('#clist').innerHTML = listRows(); }
+
+/* =====================================================
+   صفحه مشتری
+   ===================================================== */
+function entryHtml(e){
+  const cls = e.void ? 'void '+e.type : e.type;
+  return `<div class="ent ${cls} ${U.flash===e.id?'flash '+e.type:''}">
+    <span class="mk"></span>
+    <span class="em"><span class="it">${esc(e.item)}</span>
+      <span class="mt"><span>${jt(e.ts)}</span><span>${esc(e.by||'')}</span>${
+        e.void ? `<span class="vn">باطل شد، ${esc(e.void.by||'')}</span>`
+               : `<button class="vb" onclick="openSheet('void','${e.id}')">ابطال</button>`}</span>
+    </span>
+    <span class="a">${e.type==='pay'?'−':'+'}${fa(e.amount)}</span>
+  </div>`;
+}
+function custView(){
+  const c = cust();
+  if(!c){ U.view='list'; return listView(); }
+  const b = bal(c);
+  const sorted = [...c.entries].sort((x,y)=>y.ts-x.ts);
+  let html = '', last = '';
+  for(const e of sorted){
+    const dl = dayLabel(e.ts);
+    if(dl!==last){ html += `<div class="day">${dl}</div>`; last = dl; }
+    html += entryHtml(e);
+  }
+  const label = b>0 ? 'جمع بدهی' : b<0 ? 'بستانکار' : (c.entries.length ? 'حساب تسویه است' : 'هنوز ثبتی نیست');
+  return `
+  <div class="top">
+    <button class="back" onclick="go('list')">${ICON.back}بازگشت</button>
+    <button class="icon" aria-label="ارسال صورت‌حساب" onclick="shareStatement()">${ICON.share}</button>
+  </div>
+  <section class="hcard">
+    <div class="who2">${avatar(c.name,'sm')}<div class="hello">${esc(c.name)}</div></div>
+    <div class="lbl">${label}</div>
+    <div class="big"><span data-count="${Math.abs(b)}" data-key="bal:${c.id}">${fa(Math.abs(b))}</span><small>تومان</small></div>
+    <div class="rule ${U.animate?'draw':''}"></div>
+    <p class="foot">${fa(c.entries.filter(e=>!e.void).length)} ردیف ثبت‌شده</p>
+  </section>
+  <div class="panel">
+    ${html || `<div class="empty"><small>با دکمه‌های پایین اولین نسیه یا واریزی را ثبت کنید.</small></div>`}
+    <div style="height:8px"></div>
+  </div>
+  ${c.entries.length?`<div class="endnote">ردیف‌ها حذف نمی‌شوند؛ اشتباه را «ابطال» کنید تا نام ابطال‌کننده بماند.</div>`:''}
+  <div class="bar">
+    <button class="btn debt press" onclick="openSheet('debt')">ثبت نسیه</button>
+    <button class="btn pay press" onclick="openSheet('pay')">ثبت واریزی</button>
+  </div>`;
+}
+
+/* =====================================================
+   پنجره‌های پایین صفحه
+   ===================================================== */
+let sheetEl = null;
+function showSheet(inner){
+  closeSheet(true);
+  const d = document.createElement('div');
+  d.className = 'scrim';
+  d.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${inner}</div>`;
+  d.addEventListener('click',e=>{ if(e.target===d) closeSheet(); });
+  document.body.appendChild(d);
+  sheetEl = d;
+  const f = d.querySelector('[data-af]'); if(f) setTimeout(()=>f.focus(),380);
+}
+function closeSheet(now){
+  if(!sheetEl) return;
+  const d = sheetEl; sheetEl = null;
+  if(now){ d.remove(); return; }
+  d.classList.add('out'); setTimeout(()=>d.remove(),200);
+}
+function toast(msg){
+  const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
+  document.body.appendChild(t); setTimeout(()=>t.remove(),2500);
+}
+function fmtAmt(el){ const n = parseAmt(el.value); el.value = n ? fa(n) : ''; }
+
+let SG = [];
+function suggestions(){
+  const m = {};
+  DB.customers.forEach(c=>c.entries.forEach(e=>{
+    if(e.type!=='debt'||e.void) return;
+    const k = e.item.trim(); if(!k) return;
+    const o = m[k] || (m[k]={item:k,n:0,ts:0,amount:0});
+    o.n++; if(e.ts>=o.ts){ o.ts=e.ts; o.amount=e.amount; }
+  }));
+  return Object.values(m).sort((a,b)=>b.n-a.n||b.ts-a.ts).slice(0,6);
+}
+function pickSg(i){
+  const s = SG[i]; if(!s) return;
+  $('#f1').value = s.item; const a=$('#f2'); a.value = fa(s.amount); a.focus();
+}
+function fillFull(){ $('#f2').value = fa(Math.max(bal(cust()),0)); }
+function busyBtn(sel,on){ const b=$(sel); if(b) b.disabled = on; }
+
+function openSheet(kind, x){
+  if(kind==='addCust'){
+    showSheet(`<h3>مشتری جدید</h3><p class="hint">برای او یک صفحه حساب جدا باز می‌شود.</p>
+      <input class="field" id="f1" data-af placeholder="مثلاً آقای احمدی" autocomplete="off" style="margin-top:0" onkeydown="if(event.key==='Enter')doAddCust()">
+      <button class="btn block press" id="sbtn" onclick="doAddCust()">ایجاد حساب</button>`);
+  }
+  else if(kind==='debt'){
+    SG = suggestions(); const c = cust();
+    showSheet(`<h3>ثبت نسیه</h3><p class="hint">برای ${esc(c.name)}. تاریخ، ساعت و نام شما خودکار ثبت می‌شود.</p>
+      <input class="field" id="f1" data-af placeholder="چه چیزی؟ مثلاً یک قهوه" autocomplete="off" style="margin-top:0">
+      ${SG.length?`<div class="chips2">${SG.map((s,i)=>`<button class="chip" onclick="pickSg(${i})">${esc(s.item)}</button>`).join('')}</div>`:''}
+      <div class="amtbox"><input id="f2" inputmode="numeric" placeholder="۰" oninput="fmtAmt(this)" autocomplete="off"><span>تومان</span></div>
+      <button class="btn debt block press" id="sbtn" onclick="doEntry('debt')">ثبت نسیه</button>`);
+  }
+  else if(kind==='pay'){
+    const c = cust(), b = bal(c);
+    showSheet(`<h3>ثبت واریزی</h3><p class="hint">از بدهی ${esc(c.name)} کم می‌شود.</p>
+      <input class="field" id="f1" placeholder="توضیح (اختیاری) مثلاً کارت‌به‌کارت" autocomplete="off" style="margin-top:0">
+      ${b>0?`<div class="chips2"><button class="chip" onclick="fillFull()">تسویه کامل، ${fa(b)}</button></div>`:''}
+      <div class="amtbox"><input id="f2" data-af inputmode="numeric" placeholder="۰" oninput="fmtAmt(this)" autocomplete="off"><span>تومان</span></div>
+      <button class="btn pay block press" id="sbtn" onclick="doEntry('pay')">ثبت واریزی</button>`);
+  }
+  else if(kind==='void'){
+    showSheet(`<h3>ابطال این ردیف؟</h3><p class="hint">ردیف در دفتر می‌ماند ولی خط می‌خورد و از حساب کم می‌شود. این کار برگشت‌پذیر نیست.</p>
+      <button class="btn debt block press" id="sbtn" onclick="doVoid('${x}')">بله، ابطال شود</button>
+      <button class="btn ghost block press" style="margin-top:10px" onclick="closeSheet()">انصراف</button>`);
+  }
+  else if(kind==='settings'){
+    showSheet(`<h3>${esc(U.user.name)}</h3><p class="hint">${isMgr()?'مدیر':'کارمند'}، ${esc(SHOP.name||'')}</p>
+      <div class="menu">
+        <button class="mi" onclick="openSheet('staff')">کارکنان <small>${fa(DB.staff.length)} نفر</small></button>
+        <button class="mi" onclick="copyCode()">کد کسب‌وکار <small>${esc(SHOP.join_code||'')}، برای کپی بزنید</small></button>
+        <button class="mi" onclick="openSheet('chpw')">تغییر رمز من</button>
+        <button class="mi dg" onclick="doLogout()">خروج از حساب</button>
+      </div>`);
+  }
+  else if(kind==='staff'){
+    const rows = DB.staff.map(p=>`<div class="erow">${avatar(p.name,'sm')}
+      <span class="rm"><span class="nm">${esc(p.name)}${p.id===U.user.id?' (شما)':''}</span></span>
+      ${p.role==='manager' ? '<span class="tag mg">مدیر</span>'
+        : (isMgr() ? `<button class="rm-btn" onclick="openSheet('rmStaff','${p.id}')">حذف</button>` : '<span class="tag">کارمند</span>')}
+    </div>`).join('');
+    showSheet(`<h3>کارکنان</h3><p class="hint">${isMgr()?'شما می‌توانید هر کارمند را حذف کنید.':'همه کارکنان حساب‌ها را می‌بینند و می‌توانند ثبت کنند.'}</p>
+      ${rows}
+      <div class="note" style="text-align:right">برای اضافه کردن کارمند جدید، کد کسب‌وکار <b>${esc(SHOP.join_code||'')}</b> را به او بدهید تا از بخش «کارمند» ثبت‌نام کند.</div>`);
+  }
+  else if(kind==='rmStaff'){
+    const p = DB.staff.find(z=>z.id===x);
+    showSheet(`<h3>حذف ${esc(p?p.name:'')}؟</h3><p class="hint">حساب او پاک می‌شود و دیگر نمی‌تواند وارد شود. ردیف‌هایی که ثبت کرده در دفتر می‌مانند.</p>
+      <button class="btn debt block press" id="sbtn" onclick="doRmStaff('${x}')">بله، حذف شود</button>
+      <button class="btn ghost block press" style="margin-top:10px" onclick="openSheet('staff')">انصراف</button>`);
+  }
+  else if(kind==='chpw'){
+    showSheet(`<h3>تغییر رمز</h3><p class="hint">رمز جدید (حداقل ۶ کاراکتر)</p>
+      <input class="field" id="f1" data-af type="password" placeholder="رمز جدید" style="margin-top:0" onkeydown="if(event.key==='Enter')doChPw()">
+      <button class="btn block press" id="sbtn" onclick="doChPw()">ذخیره رمز</button>`);
+  }
+}
+
+/* =====================================================
+   عملیات
+   ===================================================== */
+async function run(btn, fn){
+  if(U.busy) return;
+  U.busy = true; busyBtn(btn,true);
+  try{ await fn(); }
+  catch(e){
+    if(e.message==='session-expired'){ doLogout(true); toast(faErr(e)); }
+    else toast(faErr(e));
+    busyBtn(btn,false);
+  }
+  U.busy = false;
+}
+function doAddCust(){
+  const name = $('#f1').value.trim();
+  if(!name) return $('#f1').focus();
+  run('#sbtn', async()=>{
+    const r = await api('/rest/v1/customers',{method:'POST',body:{name},prefer:'return=representation'});
+    const c = {id:r[0].id,name:r[0].name,entries:[]};
+    DB.customers.push(c); U.sig = null;
+    go('cust',{cid:c.id});
+  });
+}
+function doEntry(type){
+  const c = cust();
+  const item = $('#f1').value.trim() || (type==='pay' ? 'واریزی' : '');
+  const amount = parseAmt($('#f2').value);
+  if(!item) return $('#f1').focus();
+  if(!amount) return $('#f2').focus();
+  run('#sbtn', async()=>{
+    const r = await api('/rest/v1/entries',{method:'POST',body:{customer_id:c.id,type,item,amount},prefer:'return=representation'});
+    const e = mapEntry(r[0]); c.entries.push(e); U.sig = null;
+    U.flash = e.id; closeSheet(); render();
+    toast(type==='pay' ? 'واریزی ثبت شد' : 'نسیه ثبت شد');
+  });
+}
+function doVoid(id){
+  run('#sbtn', async()=>{
+    await api('/rest/v1/rpc/void_entry',{method:'POST',body:{p_id:id}});
+    const e = cust().entries.find(x=>x.id===id);
+    if(e) e.void = {by:U.user.name, ts:Date.now()};
+    U.sig = null; closeSheet(); render(); toast('ردیف باطل شد');
+  });
+}
+function doRmStaff(id){
+  run('#sbtn', async()=>{
+    await api('/rest/v1/rpc/remove_staff',{method:'POST',body:{p_id:id}});
+    await loadData(true);
+    openSheet('staff'); toast('کارمند حذف شد');
+  });
+}
+function doChPw(){
+  const p = $('#f1').value;
+  if(p.length<6){ toast('رمز باید حداقل ۶ کاراکتر باشد'); return $('#f1').focus(); }
+  run('#sbtn', async()=>{
+    await api('/auth/v1/user',{method:'PUT',body:{password:p}});
+    closeSheet(); toast('رمز تغییر کرد');
+  });
+}
+async function copyCode(){
+  try{ await navigator.clipboard.writeText(SHOP.join_code||''); toast('کد کپی شد'); }
+  catch(e){ toast('کد: '+(SHOP.join_code||'')); }
+}
+async function shareStatement(){
+  const c = cust(), b = bal(c);
+  const L = ['صورت‌حساب '+c.name, SHOP.name||'', 'تاریخ: '+jd(Date.now()), ''];
+  c.entries.filter(e=>!e.void).sort((x,y)=>x.ts-y.ts)
+    .forEach(e=>L.push(`${jd(e.ts)} ${jt(e.ts)}  ${e.item}  ${e.type==='pay'?'−':''}${fa(e.amount)}`));
+  L.push('', 'مانده حساب: '+fa(Math.abs(b))+' تومان'+(b<0?' (بستانکار)':''));
+  const text = L.join('\n');
+  try{ if(navigator.share){ await navigator.share({text}); return; } }
+  catch(e){ if(e.name==='AbortError') return; }
+  try{ await navigator.clipboard.writeText(text); toast('صورت‌حساب کپی شد'); }
+  catch(e){ toast('کپی انجام نشد'); }
+}
+
+/* ===== شروع ===== */
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+U.animate = true;
+boot();
+</script>
+</body>
+</html>
