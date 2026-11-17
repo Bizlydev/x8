@@ -1,4 +1,4 @@
-const C = 'nesiye-v2';
+const C = 'nesiye-v1';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.jpg'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(SHELL)).catch(()=>{}));
